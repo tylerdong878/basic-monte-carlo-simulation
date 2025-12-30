@@ -22,11 +22,13 @@ mean_return = daily_returns.mean()
 volatility = daily_returns.std()
 drift = mean_return - (0.5 * volatility ** 2)
 
-# Simulaiton parameters
+# Simulation
 num_simulations = 1000
 num_days = 252  
-initial_price = closing_prices[-1]
+initial_price = closing_prices.iloc[-1]
 shocks = np.random.normal(0, 1, (num_days, num_simulations))
 daily_time_step = 1
-daily_returns_matrix = np.exp(drift * daily_time_step + volatility * shocks)
+daily_returns_matrix = np.exp(drift * daily_time_step + volatility * np.sqrt(daily_time_step) * shocks)
 price_paths = initial_price * np.cumprod(daily_returns_matrix, axis=0)
+day_zero = np.full((1, num_simulations), initial_price)
+full_price_paths = np.vstack([day_zero, price_paths])
